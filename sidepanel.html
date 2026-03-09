@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Side Panel</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header class="toolbar" role="toolbar" aria-label="Navigation toolbar">
+      <button id="btn-back" class="tool-btn" title="Back (Alt+Left)" aria-label="Go back">←</button>
+      <button id="btn-forward" class="tool-btn" title="Forward (Alt+Right)" aria-label="Go forward">→</button>
+      <button id="btn-refresh" class="tool-btn" title="Refresh (Ctrl+R)" aria-label="Refresh">↻</button>
+      <button id="btn-home" class="tool-btn" title="Home (Alt+H)" aria-label="Go home">⌂</button>
+
+      <div class="url-pill" aria-live="polite">
+        <span id="url-display">Ready</span>
+      </div>
+
+      <button
+        id="btn-open-tab"
+        class="tool-btn tool-btn--accent"
+        title="Open in New Tab"
+        aria-label="Open in new tab"
+      >
+        ↗
+      </button>
+    </header>
+
+    <main class="panel-content">
+      <section id="loader" class="overlay" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p id="loader-text">Loading…</p>
+      </section>
+
+      <section id="error-screen" class="overlay hidden" role="alert">
+        <div class="error-card">
+          <h1>Unable to display this page</h1>
+          <p>
+            The site may block embedding. You can retry, go home, or open it in a new browser tab.
+          </p>
+          <div class="error-actions">
+            <button id="btn-retry" class="action-btn">Retry</button>
+            <button id="btn-error-home" class="action-btn">Go Home</button>
+            <button id="btn-error-open-tab" class="action-btn action-btn--primary">Open in New Tab</button>
+          </div>
+        </div>
+      </section>
+
+      <iframe
+        id="main-frame"
+        title="Embedded page"
+        referrerpolicy="no-referrer"
+        allow="fullscreen"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+      ></iframe>
+    </main>
+
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
