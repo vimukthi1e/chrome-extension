@@ -3,58 +3,89 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Advanced Side Panel</title>
+    <title>Advanced Split Side Panel</title>
     <link rel="stylesheet" href="sidepanel.css" />
   </head>
   <body>
-    <header class="toolbar" role="toolbar" aria-label="Navigation toolbar">
-      <button id="btn-back" class="tool-btn" title="Back (Alt+Left)" aria-label="Go back">←</button>
-      <button id="btn-forward" class="tool-btn" title="Forward (Alt+Right)" aria-label="Go forward">→</button>
-      <button id="btn-refresh" class="tool-btn" title="Refresh (Ctrl+R)" aria-label="Refresh">↻</button>
-      <button id="btn-home" class="tool-btn" title="Home (Alt+H)" aria-label="Go home">⌂</button>
+    <section class="split-panel" id="panel-top">
+      <header class="toolbar" role="toolbar" aria-label="Top panel toolbar">
+        <button class="tool-btn" id="back-top" title="Back">←</button>
+        <button class="tool-btn" id="forward-top" title="Forward">→</button>
+        <button class="tool-btn" id="refresh-top" title="Refresh">↻</button>
+        <button class="tool-btn" id="home-top" title="Home">⌂</button>
+        <div class="url-pill" aria-live="polite">
+          <span class="url-display" id="url-top">Loading…</span>
+        </div>
+        <button class="tool-btn tool-btn--accent" id="tab-top" title="Open in new tab">↗</button>
+      </header>
 
-      <div class="url-pill" aria-live="polite">
-        <span id="url-display">Ready</span>
-      </div>
+      <div class="frame-wrap">
+        <div class="overlay" id="loader-top" aria-live="polite">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Loading…</p>
+        </div>
 
-      <button
-        id="btn-open-tab"
-        class="tool-btn tool-btn--accent"
-        title="Open in New Tab"
-        aria-label="Open in new tab"
-      >
-        ↗
-      </button>
-    </header>
-
-    <main class="panel-content">
-      <section id="loader" class="overlay" aria-live="polite">
-        <div class="spinner" aria-hidden="true"></div>
-        <p id="loader-text">Loading…</p>
-      </section>
-
-      <section id="error-screen" class="overlay hidden" role="alert">
-        <div class="error-card">
-          <h1>Unable to display this page</h1>
-          <p>
-            The site may block embedding. You can retry, go home, or open it in a new browser tab.
-          </p>
-          <div class="error-actions">
-            <button id="btn-retry" class="action-btn">Retry</button>
-            <button id="btn-error-home" class="action-btn">Go Home</button>
-            <button id="btn-error-open-tab" class="action-btn action-btn--primary">Open in New Tab</button>
+        <div class="overlay hidden" id="error-top" role="alert">
+          <div class="error-card">
+            <h2>Cannot load this page</h2>
+            <p>The site may block embedding. Try again or open it in a new tab.</p>
+            <button class="action-btn" id="retry-top">Retry</button>
+            <button class="action-btn" id="ehome-top">Go Home</button>
+            <button class="action-btn action-btn--primary" id="etab-top">Open in New Tab</button>
           </div>
         </div>
-      </section>
 
-      <iframe
-        id="main-frame"
-        title="Embedded page"
-        referrerpolicy="no-referrer"
-        allow="fullscreen"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
-      ></iframe>
-    </main>
+        <iframe
+          id="frame-top"
+          title="Top embedded site"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+          referrerpolicy="no-referrer"
+          allow="fullscreen"
+        ></iframe>
+      </div>
+    </section>
+
+    <div class="resizer" id="resizer" role="separator" aria-label="Resize split panels" aria-orientation="horizontal">
+      <div class="resizer-handle"></div>
+    </div>
+
+    <section class="split-panel" id="panel-bottom">
+      <header class="toolbar" role="toolbar" aria-label="Bottom panel toolbar">
+        <button class="tool-btn" id="back-bottom" title="Back">←</button>
+        <button class="tool-btn" id="forward-bottom" title="Forward">→</button>
+        <button class="tool-btn" id="refresh-bottom" title="Refresh">↻</button>
+        <button class="tool-btn" id="home-bottom" title="Home">⌂</button>
+        <div class="url-pill" aria-live="polite">
+          <span class="url-display" id="url-bottom">Loading…</span>
+        </div>
+        <button class="tool-btn tool-btn--accent" id="tab-bottom" title="Open in new tab">↗</button>
+      </header>
+
+      <div class="frame-wrap">
+        <div class="overlay" id="loader-bottom" aria-live="polite">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Loading…</p>
+        </div>
+
+        <div class="overlay hidden" id="error-bottom" role="alert">
+          <div class="error-card">
+            <h2>Cannot load this page</h2>
+            <p>The site may block embedding. Try again or open it in a new tab.</p>
+            <button class="action-btn" id="retry-bottom">Retry</button>
+            <button class="action-btn" id="ehome-bottom">Go Home</button>
+            <button class="action-btn action-btn--primary" id="etab-bottom">Open in New Tab</button>
+          </div>
+        </div>
+
+        <iframe
+          id="frame-bottom"
+          title="Bottom embedded site"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+          referrerpolicy="no-referrer"
+          allow="fullscreen"
+        ></iframe>
+      </div>
+    </section>
 
     <script src="sidepanel.js"></script>
   </body>
