@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Side Panel</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header class="toolbar" role="toolbar" aria-label="Navigation toolbar">
+      <button id="btn-back" class="tool-btn" title="Back (Alt+Left)" aria-label="Back">←</button>
+      <button id="btn-forward" class="tool-btn" title="Forward (Alt+Right)" aria-label="Forward">→</button>
+      <button id="btn-refresh" class="tool-btn" title="Refresh (Ctrl/Cmd+R)" aria-label="Refresh">⟳</button>
+      <button id="btn-home" class="tool-btn" title="Go Home" aria-label="Home">⌂</button>
+
+      <div id="url-display" class="url-display" aria-live="polite" title="Current URL">Loading…</div>
+
+      <button id="btn-newtab" class="tool-btn accent" title="Open in New Tab" aria-label="Open in New Tab">↗</button>
+    </header>
+
+    <main class="panel-content">
+      <section id="loader" class="overlay" aria-live="polite" aria-busy="true">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Loading page…</p>
+      </section>
+
+      <section id="error-screen" class="overlay hidden" aria-live="assertive">
+        <div class="error-card">
+          <h2>Couldn’t load this page</h2>
+          <p>
+            The site may block embedding in iframes or did not respond in time.
+          </p>
+          <div class="error-actions">
+            <button id="btn-retry" class="secondary-btn">Retry</button>
+            <button id="btn-open-tab" class="primary-btn">Open in New Tab</button>
+          </div>
+        </div>
+      </section>
+
+      <iframe
+        id="main-frame"
+        title="Embedded page"
+        referrerpolicy="no-referrer"
+        allow="fullscreen"
+      ></iframe>
+    </main>
+
+    <script src="sidepanel.js"></script>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Advanced Side Panel",
+  "version": "1.0.0",
+  "description": "Chrome extension side panel with in-panel navigation, loading state, and error fallback.",
+  "permissions": [
+    "sidePanel",
+    "declarativeNetRequest",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_title": "Open Side Panel"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
+}
