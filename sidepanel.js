@@ -3,6 +3,31 @@ const BOTTOM_HOME_URL = 'https://site-two.com';
 const LOAD_TIMEOUT_MS = 12000;
 const MIN_PANEL_HEIGHT = 100;
 
+const TOP_STORAGE_KEY = 'savedTopUrl';
+const BOTTOM_STORAGE_KEY = 'savedBottomUrl';
+
+function getStoredUrls() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([TOP_STORAGE_KEY, BOTTOM_STORAGE_KEY], (result) => {
+      if (chrome.runtime.lastError) {
+        console.warn('Failed to read saved panel URLs:', chrome.runtime.lastError.message);
+        resolve({});
+        return;
+      }
+
+      resolve(result || {});
+    });
+  });
+}
+
+function savePanelUrl(storageKey, url) {
+  chrome.storage.local.set({ [storageKey]: url }, () => {
+    if (chrome.runtime.lastError) {
+      console.warn(`Failed to save URL for ${storageKey}:`, chrome.runtime.lastError.message);
+    }
+  });
+}
+
 function createPanel(config) {
   const frame = document.getElementById(config.frameId);
   const loader = document.getElementById(config.loaderId);
@@ -19,7 +44,7 @@ function createPanel(config) {
   const btnErrorHome = document.getElementById(config.errorHomeId);
   const btnErrorTab = document.getElementById(config.errorTabId);
 
-  let currentUrl = config.homeUrl;
+  let currentUrl = config.initialUrl;
   let pendingUrl = null;
   let timeoutId = null;
 
@@ -91,13 +116,15 @@ function createPanel(config) {
 
     try {
       const loaded = frame.contentWindow.location.href;
-      if (loaded) {
+      if (loaded && loaded !== 'about:blank') {
         currentUrl = loaded;
         urlDisplay.textContent = loaded;
+        savePanelUrl(config.storageKey, loaded);
       }
     } catch {
       if (pendingUrl) {
         urlDisplay.textContent = pendingUrl;
+        savePanelUrl(config.storageKey, pendingUrl);
       }
     }
 
@@ -137,49 +164,105 @@ function createPanel(config) {
   btnErrorTab.addEventListener('click', openInNewTab);
 
   updateButtons();
-  loadUrl(config.homeUrl, 'Opening home…');
+  loadUrl(config.initialUrl, 'Restoring session…');
 
   return {
-    frame,
-    loadUrl,
+    refresh: () => btnRefresh.click(),
     goBack: () => btnBack.click(),
     goForward: () => btnForward.click(),
-    refresh: () => btnRefresh.click(),
     goHome: () => btnHome.click()
   };
 }
 
-const topPanel = createPanel({
-  homeUrl: TOP_HOME_URL,
-  frameId: 'frame-top',
-  loaderId: 'loader-top',
-  errorId: 'error-top',
-  urlId: 'url-top',
-  backId: 'back-top',
-  forwardId: 'forward-top',
-  refreshId: 'refresh-top',
-  homeId: 'home-top',
-  tabId: 'tab-top',
-  retryId: 'retry-top',
-  errorHomeId: 'ehome-top',
-  errorTabId: 'etab-top'
-});
+async function initPanels() {
+  const stored = await getStoredUrls();
 
-const bottomPanel = createPanel({
-  homeUrl: BOTTOM_HOME_URL,
-  frameId: 'frame-bottom',
-  loaderId: 'loader-bottom',
-  errorId: 'error-bottom',
-  urlId: 'url-bottom',
-  backId: 'back-bottom',
-  forwardId: 'forward-bottom',
-  refreshId: 'refresh-bottom',
-  homeId: 'home-bottom',
-  tabId: 'tab-bottom',
-  retryId: 'retry-bottom',
-  errorHomeId: 'ehome-bottom',
-  errorTabId: 'etab-bottom'
-});
+  const topPanel = createPanel({
+    homeUrl: TOP_HOME_URL,
+    initialUrl: stored.savedTopUrl || TOP_HOME_URL,
+    storageKey: TOP_STORAGE_KEY,
+    frameId: 'frame-top',
+    loaderId: 'loader-top',
+    errorId: 'error-top',
+    urlId: 'url-top',
+    backId: 'back-top',
+    forwardId: 'forward-top',
+    refreshId: 'refresh-top',
+    homeId: 'home-top',
+    tabId: 'tab-top',
+    retryId: 'retry-top',
+    errorHomeId: 'ehome-top',
+    errorTabId: 'etab-top'
+  });
+
+  const bottomPanel = createPanel({
+    homeUrl: BOTTOM_HOME_URL,
+    initialUrl: stored.savedBottomUrl || BOTTOM_HOME_URL,
+    storageKey: BOTTOM_STORAGE_KEY,
+    frameId: 'frame-bottom',
+    loaderId: 'loader-bottom',
+    errorId: 'error-bottom',
+    urlId: 'url-bottom',
+    backId: 'back-bottom',
+    forwardId: 'forward-bottom',
+    refreshId: 'refresh-bottom',
+    homeId: 'home-bottom',
+    tabId: 'tab-bottom',
+    retryId: 'retry-bottom',
+    errorHomeId: 'ehome-bottom',
+    errorTabId: 'etab-bottom'
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'r') {
+      event.preventDefault();
+      topPanel.refresh();
+      bottomPanel.refresh();
+      return;
+    }
+
+    if (!event.altKey) {
+      return;
+    }
+
+    if (event.shiftKey && event.key === 'ArrowLeft') {
+      event.preventDefault();
+      bottomPanel.goBack();
+      return;
+    }
+
+    if (event.shiftKey && event.key === 'ArrowRight') {
+      event.preventDefault();
+      bottomPanel.goForward();
+      return;
+    }
+
+    if (event.shiftKey && event.key.toLowerCase() === 'h') {
+      event.preventDefault();
+      bottomPanel.goHome();
+      return;
+    }
+
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      topPanel.goBack();
+      return;
+    }
+
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      topPanel.goForward();
+      return;
+    }
+
+    if (event.key.toLowerCase() === 'h') {
+      event.preventDefault();
+      topPanel.goHome();
+    }
+  });
+}
+
+initPanels();
 
 const resizer = document.getElementById('resizer');
 const panelTop = document.getElementById('panel-top');
@@ -234,51 +317,3 @@ function stopDragging() {
 
 document.addEventListener('mouseup', stopDragging);
 document.addEventListener('mouseleave', stopDragging);
-
-document.addEventListener('keydown', (event) => {
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'r') {
-    event.preventDefault();
-    topPanel.refresh();
-    bottomPanel.refresh();
-    return;
-  }
-
-  if (!event.altKey) {
-    return;
-  }
-
-  if (event.shiftKey && event.key === 'ArrowLeft') {
-    event.preventDefault();
-    bottomPanel.goBack();
-    return;
-  }
-
-  if (event.shiftKey && event.key === 'ArrowRight') {
-    event.preventDefault();
-    bottomPanel.goForward();
-    return;
-  }
-
-  if (event.shiftKey && event.key.toLowerCase() === 'h') {
-    event.preventDefault();
-    bottomPanel.goHome();
-    return;
-  }
-
-  if (event.key === 'ArrowLeft') {
-    event.preventDefault();
-    topPanel.goBack();
-    return;
-  }
-
-  if (event.key === 'ArrowRight') {
-    event.preventDefault();
-    topPanel.goForward();
-    return;
-  }
-
-  if (event.key.toLowerCase() === 'h') {
-    event.preventDefault();
-    topPanel.goHome();
-  }
-});
